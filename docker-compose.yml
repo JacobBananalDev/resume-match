@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  resumematch:
+    build: .
+    container_name: resumematch-api
+    ports:
+      - "8080:8080"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
