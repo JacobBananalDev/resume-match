@@ -28,6 +28,9 @@ func main(){
 	// chi - lightweight and idiomatic for GO apis
 	r := chi.NewRouter()
 
+	// Rate limit: 5 requests per second
+	r.Use(middleware.RateLimiter(5))
+
 	// Register logging middleware
 	r.Use(middleware.Logger)
 
@@ -38,7 +41,7 @@ func main(){
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
-
+	
 	// Resume analysis endpoint
 	r.Post("/analyze", handler.Analyze)
 
