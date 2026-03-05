@@ -1,0 +1,91 @@
+package httpapi
+
+import (
+	"encoding/json"
+	"net/http"
+)
+
+/*
+AnalyzeRequest represents the JSON body sent to POST /analyze.
+
+We include:
+- companyName: which company the job is for
+- roleTitle: what role the candidate is applying to
+- resumeText: full resume content
+- jobDescriptionText: full job posting text
+
+Example request:
+
+{
+  "companyName": "Google",
+  "roleTitle": "Backend Engineer",
+  "resumeText": "...",
+  "jobDescriptionText": "..."
+}
+*/
+type AnalyzeRequest struct {
+	CompanyName 		string `json:"companyName"`
+	RoleTitle			string `json:"roleTitle"`
+	ResumeText        	string `json:"resumeText"`
+	JobDescriptionText 	string `json:"jobDescriptionText"`
+}
+
+/*
+AnalyzeResponse represents what our API will return.
+
+Later this will include real scoring logic.
+For now we just return a placeholder response.
+*/
+type AnalyzeResponse struct {
+	Score         int      `json:"score"`
+	MatchedSkills []string `json:"matchedSkills"`
+	MissingSkills []string `json:"missingSkills"`
+}
+
+/*
+AnalyzeHandler handles POST /analyze requests.
+
+Responsibilities:
+1) Read JSON request body
+2) Validate input
+3) Call analysis logic (later)
+4) Return JSON response
+*/
+func AnalyzeHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Create a variable to hold the decoded request
+	var req AnalyzeRequest
+
+	// Decode JSON request body into struct
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "invalid JSON body", http.StatusBadRequest)
+		return
+	}
+
+	// Very basic validation
+	if req.CompanyName == "" || 
+		req.RoleTitle == "" ||
+		req.ResumeText == "" ||
+		req.JobDescriptionText == "" {
+
+		http.Error(w, "companyName, roleTitle, resumeText and jobDescriptionText are required", http.StatusBadRequest)
+		return
+	}
+
+	/*
+	   For now we return a fake response.
+	   In the next step we'll implement real scoring.
+	*/
+	resp := AnalyzeResponse{
+		Score:         50,
+		MatchedSkills: []string{"go"},
+		MissingSkills: []string{"kubernetes"},
+	}
+
+	// Tell the client we are returning JSON
+	w.Header().Set("Content-Type", "application/json")
+
+	// Encode struct → JSON response
+	json.NewEncoder(w).Encode(resp)
+}

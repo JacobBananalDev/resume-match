@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/JacobBananalDev/resume-match/internal/httpapi"
 )
 
 // main - entrypoint for the ResumeMatch API server.
@@ -31,6 +32,9 @@ func main(){
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
+
+	// Resume analysis endpoint
+	r.Post("/analyze", httpapi.AnalyzeHandler)
 
 		// Create an HTTP server with basic safety timeouts.
 	// Timeouts protect you from slowloris-style attacks and hung connections.
