@@ -36,6 +36,10 @@ var skillBank = []string{
 	"terraform",
 	"javascript",
 	"typescript",
+	"sql",
+	"api",
+	"distributed",
+	"database",
 }
 
 /*
@@ -50,6 +54,21 @@ var skillSynonyms = map[string]string{
 	"k8s": "kubernetes",
 	"js": "javascript",
 	"ts": "typescript",
+}
+
+/*
+semanticSkills maps related technologies
+to broader concepts.
+*/
+var semanticSkills = map[string][]string{
+	"postgres": {"sql", "database"},
+	"mysql": {"sql", "database"},
+	"redis": {"database", "cache"},
+	"grpc": {"api"},
+	"rest": {"api"},
+	"microservices": {"distributed", "distributed systems"},
+	"docker": {"containers"},
+	"kubernetes": {"containers", "orchestration"},
 }
 
 /*
@@ -107,6 +126,15 @@ func extractSkills(text string) map[string]bool {
 
 	for _, token := range tokens {
 		tokenSet[token] = true
+
+		// semantic expansions
+		if related, exists := semanticSkills[token]; exists {
+
+			for _, r := range related {
+				tokenSet[r] = true
+			}
+
+		}
 	}
 
 	foundSkills := make(map[string]bool)
