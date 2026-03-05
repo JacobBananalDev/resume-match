@@ -61,6 +61,7 @@ type AnalyzeResponse struct {
 	Score         int      `json:"score"`
 	MatchedSkills []string `json:"matchedSkills"`
 	MissingSkills []string `json:"missingSkills"`
+	Recommendations []string `json:"recommendations"`
 }
 
 /*
@@ -95,12 +96,16 @@ func (h *Handler) Analyze(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call service layer
-	result := h.analyzeService.AnalyzeResume(req.ResumeText, req.JobDescriptionText)
+	result, recommendations := h.analyzeService.AnalyzeResume(
+		req.ResumeText, 
+		req.JobDescriptionText,
+		req.RoleTitle)
 	
 	resp := AnalyzeResponse{
 		Score:         result.Score,
 		MatchedSkills: result.MatchedSkills,
 		MissingSkills: result.MissingSkills,
+		Recommendations: recommendations,
 	}
 
 	// Tell the client we are returning JSON

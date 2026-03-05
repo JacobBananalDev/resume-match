@@ -40,9 +40,18 @@ Later we can extend this with:
 - database storage
 - analytics
 */
-func (s *AnalyzeService) AnalyzeResume(resumeText string, jobDescription string) analyze.AnalysisResult {
+func (s *AnalyzeService) AnalyzeResume(
+	resumeText string,
+	jobDescription string,
+	roleTitle string,
+) (analyze.AnalysisResult, []string) {
 
 	result := analyze.Analyze(resumeText, jobDescription)
 
-	return result
+	recommendations := analyze.GenerateRecommendations(
+		result.MissingSkills,
+		roleTitle,
+	)
+
+	return result, recommendations
 }
