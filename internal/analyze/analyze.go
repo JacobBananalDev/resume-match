@@ -34,6 +34,34 @@ var skillBank = []string{
 	"react",
 	"python",
 	"terraform",
+	"javascript",
+	"typescript",
+}
+
+/*
+skillSynonyms maps common alternate names to canonical skills.
+
+Example:
+golang → go
+k8s → kubernetes
+*/
+var skillSynonyms = map[string]string{
+	"golang": "go",
+	"k8s": "kubernetes",
+	"js": "javascript",
+	"ts": "typescript",
+}
+
+/*
+normalizeToken converts synonyms to canonical skill names.
+*/
+func normalizeToken(token string) string {
+
+	if normalized, exists := skillSynonyms[token]; exists {
+		return normalized
+	}
+
+	return token
 }
 
 /*
@@ -52,7 +80,18 @@ func tokenize(text string) []string {
 	reg := regexp.MustCompile(`[^\w\s]`)
 	text = reg.ReplaceAllString(text, "")
 
-	return strings.Fields(text)
+	rawTokens := strings.Fields(text)
+
+	var tokens []string
+
+	for _, token := range rawTokens {
+
+		normalized := normalizeToken(token)
+
+		tokens = append(tokens, normalized)
+	}
+
+	return tokens
 }
 
 /*
