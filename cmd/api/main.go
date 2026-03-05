@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/JacobBananalDev/resume-match/internal/httpapi"
+	"github.com/JacobBananalDev/resume-match/internal/middleware"
 )
 
 // main - entrypoint for the ResumeMatch API server.
@@ -26,6 +27,9 @@ func main(){
 	// Create a new chi router 
 	// chi - lightweight and idiomatic for GO apis
 	r := chi.NewRouter()
+
+	// Register logging middleware
+	r.Use(middleware.Logger)
 
 	// A simple health check endpoint 
 	// Useful for: "Is the server alive?", docker health checks, and load balancers
