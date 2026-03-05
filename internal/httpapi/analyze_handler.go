@@ -3,6 +3,8 @@ package httpapi
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/JacobBananalDev/resume-match/internal/analyze"
 )
 
 /*
@@ -73,14 +75,12 @@ func AnalyzeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/*
-	   For now we return a fake response.
-	   In the next step we'll implement real scoring.
-	*/
+	result := analyze.Analyze(req.ResumeText, req.JobDescriptionText)
+	
 	resp := AnalyzeResponse{
-		Score:         50,
-		MatchedSkills: []string{"go"},
-		MissingSkills: []string{"kubernetes"},
+		Score:         result.Score,
+		MatchedSkills: result.MatchedSkills,
+		MissingSkills: result.MissingSkills,
 	}
 
 	// Tell the client we are returning JSON
