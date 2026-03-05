@@ -54,6 +54,10 @@ var skillSynonyms = map[string]string{
 	"k8s": "kubernetes",
 	"js": "javascript",
 	"ts": "typescript",
+
+	// database normalization
+	"postgresql": "postgres",
+	"psql": "postgres",
 }
 
 /*
