@@ -1,6 +1,7 @@
 package analyze
 
 import (
+	"regexp"
 	"strings"
 )
 
@@ -36,43 +37,76 @@ var skillBank = []string{
 }
 
 /*
-Analyze compares the resume text against the job description.
+tokenize converts text into normalized words.
 
-Algorithm (very simple for now):
-
-1) Detect which skills appear in the job description
-2) Check which of those appear in the resume
-3) Calculate score
+Steps:
+1) lowercase text
+2) remove punctuation
+3) split into tokens
 */
-func Analyze(resumeText string, jobDescription string) AnalysisResult {
+func tokenize(text string) []string {
 
-	// Normalize text to lowercase for easier comparison
-	resume := strings.ToLower(resumeText)
-	job := strings.ToLower(jobDescription)
+	text = strings.ToLower(text)
 
-	var jobSkills []string
-	var matched []string
-	var missing []string
+	// Remove punctuation
+	reg := regexp.MustCompile(`[^\w\s]`)
+	text = reg.ReplaceAllString(text, "")
 
-	// Find which skills appear in the job description
+	return strings.Fields(text)
+}
+
+/*
+extractSkills finds which skills exist in text.
+
+It returns a map for fast lookup.
+*/
+func extractSkills(text string) map[string]bool {
+
+	tokens := tokenize(text)
+
+	tokenSet := make(map[string]bool)
+
+	for _, token := range tokens {
+		tokenSet[token] = true
+	}
+
+	foundSkills := make(map[string]bool)
+
 	for _, skill := range skillBank {
-		if strings.Contains(job, skill) {
-			jobSkills = append(jobSkills, skill)
+		if tokenSet[skill] {
+			foundSkills[skill] = true
 		}
 	}
 
-	// Check which required skills appear in the resume
-	for _, skill := range jobSkills {
+	return foundSkills
+}
 
-		if strings.Contains(resume, skill) {
+/*
+Analyze performs resume vs job comparison.
+
+Steps:
+1) extract job skills
+2) extract resume skills
+3) compare
+4) compute score
+*/
+func Analyze(resumeText string, jobDescription string) AnalysisResult {
+
+	jobSkills := extractSkills(jobDescription)
+	resumeSkills := extractSkills(resumeText)
+
+	var matched []string
+	var missing []string
+
+	for skill := range jobSkills {
+
+		if resumeSkills[skill] {
 			matched = append(matched, skill)
 		} else {
 			missing = append(missing, skill)
 		}
-
 	}
 
-	// Calculate score
 	score := 0
 
 	if len(jobSkills) > 0 {
