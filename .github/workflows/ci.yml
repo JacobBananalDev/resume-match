@@ -1,0 +1,39 @@
+name: ResumeMatch CI
+
+on:
+  push:
+    branches: [ Master ]
+  pull_request:
+    branches: [ Master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup Go
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      # Download dependencies
+      - name: Install dependencies
+        run: go mod download
+
+      # Run tests
+      - name: Run tests
+        run: go test ./...
+
+      # Build API binary
+      - name: Build API
+        run: go build -v ./cmd/api
+
+      # Build Docker image
+      - name: Build Docker image
+        run: docker build -t resumematch .
