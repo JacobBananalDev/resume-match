@@ -21,6 +21,8 @@ func main(){
 		port = "8080"
 	}
 
+	handler := httpapi.NewHandler()
+
 	// Create a new chi router 
 	// chi - lightweight and idiomatic for GO apis
 	r := chi.NewRouter()
@@ -34,7 +36,7 @@ func main(){
 	})
 
 	// Resume analysis endpoint
-	r.Post("/analyze", httpapi.AnalyzeHandler)
+	r.Post("/analyze", handler.Analyze)
 
 		// Create an HTTP server with basic safety timeouts.
 	// Timeouts protect you from slowloris-style attacks and hung connections.

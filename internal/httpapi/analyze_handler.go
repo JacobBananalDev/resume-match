@@ -4,8 +4,27 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/JacobBananalDev/resume-match/internal/analyze"
+	"github.com/JacobBananalDev/resume-match/internal/service"
 )
+
+/*
+Handler struct allows us to attach dependencies
+like services.
+
+This keeps handlers clean and testable.
+*/
+type Handler struct {
+	analyzeService *service.AnalyzeService
+}
+
+/*
+NewHandler constructs a handler with dependencies.
+*/
+func NewHandler() *Handler {
+	return &Handler{
+		analyzeService: service.NewAnalyzeService(),
+	}
+}
 
 /*
 AnalyzeRequest represents the JSON body sent to POST /analyze.
@@ -53,7 +72,7 @@ Responsibilities:
 3) Call analysis logic (later)
 4) Return JSON response
 */
-func AnalyzeHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Analyze(w http.ResponseWriter, r *http.Request) {
 
 	// Create a variable to hold the decoded request
 	var req AnalyzeRequest
@@ -75,7 +94,8 @@ func AnalyzeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := analyze.Analyze(req.ResumeText, req.JobDescriptionText)
+	// Call service layer
+	result := h.analyzeService.AnalyzeResume(req.ResumeText, req.JobDescriptionText)
 	
 	resp := AnalyzeResponse{
 		Score:         result.Score,
