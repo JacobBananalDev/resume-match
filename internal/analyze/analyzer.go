@@ -18,76 +18,6 @@ type AnalysisResult struct {
 }
 
 /*
-skillBank is a small list of skills we recognize.
-
-Later this can be replaced by:
-- a database
-- an AI embedding model
-- a skills taxonomy
-*/
-var skillBank = []string{
-	"go",
-	"docker",
-	"kubernetes",
-	"aws",
-	"postgres",
-	"react",
-	"python",
-	"terraform",
-	"javascript",
-	"typescript",
-	"sql",
-	"api",
-	"distributed",
-	"database",
-}
-
-/*
-skillSynonyms maps common alternate names to canonical skills.
-
-Example:
-golang → go
-k8s → kubernetes
-*/
-var skillSynonyms = map[string]string{
-	"golang": "go",
-	"k8s": "kubernetes",
-	"js": "javascript",
-	"ts": "typescript",
-
-	// database normalization
-	"postgresql": "postgres",
-	"psql": "postgres",
-}
-
-/*
-semanticSkills maps related technologies
-to broader concepts.
-*/
-var semanticSkills = map[string][]string{
-	"postgres": {"sql", "database"},
-	"mysql": {"sql", "database"},
-	"redis": {"database", "cache"},
-	"grpc": {"api"},
-	"rest": {"api"},
-	"microservices": {"distributed", "distributed systems"},
-	"docker": {"containers"},
-	"kubernetes": {"containers", "orchestration"},
-}
-
-/*
-normalizeToken converts synonyms to canonical skill names.
-*/
-func normalizeToken(token string) string {
-
-	if normalized, exists := skillSynonyms[token]; exists {
-		return normalized
-	}
-
-	return token
-}
-
-/*
 tokenize converts text into normalized words.
 
 Steps:
@@ -109,7 +39,7 @@ func tokenize(text string) []string {
 
 	for _, token := range rawTokens {
 
-		normalized := normalizeToken(token)
+		normalized := NormalizeSkill(token)
 
 		tokens = append(tokens, normalized)
 	}
@@ -132,7 +62,7 @@ func extractSkills(text string) map[string]bool {
 		tokenSet[token] = true
 
 		// semantic expansions
-		if related, exists := semanticSkills[token]; exists {
+		if related, exists := SemanticSkills[token]; exists {
 
 			for _, r := range related {
 				tokenSet[r] = true
@@ -143,7 +73,7 @@ func extractSkills(text string) map[string]bool {
 
 	foundSkills := make(map[string]bool)
 
-	for _, skill := range skillBank {
+	for _, skill := range SkillBank {
 		if tokenSet[skill] {
 			foundSkills[skill] = true
 		}
